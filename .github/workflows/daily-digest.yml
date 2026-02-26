@@ -1,0 +1,40 @@
+# .github/workflows/daily-digest.yml
+name: Daily Casting Digest
+
+on:
+  schedule:
+    # 7:00 AM Pacific = 15:00 UTC (during PDT) or 15:00 UTC (during PST)
+    - cron: '0 15 * * *'
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  send-digest:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          playwright install chromium
+          playwright install-deps
+
+      - name: Run Casting Scout
+        env:
+          SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
+          RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
+        run: python main.py
+
+      - name: Update seen listings
+        run: |
+          git config user.name "Casting Scout Bot"
+          git config user.email "bot@castingscout.local"
+          git add data/seen_listings.json
+          git diff --staged --quiet || git commit -m "chore: update seen listings"
+          git push
