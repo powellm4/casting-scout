@@ -1,0 +1,7 @@
+playwright==1.50.0
+beautifulsoup4==4.12.3
+requests==2.32.3
+sendgrid==6.11.0
+python-dotenv==1.0.1
+pytest==8.3.4
+pytest-asyncio==0.24.0
