@@ -3,12 +3,12 @@ from __future__ import annotations
 
 from datetime import date, timedelta
 
-from config import LA_METRO_LOCATIONS, NON_UNION_KEYWORDS, FRESHNESS_HOURS
+from config import LA_METRO_LOCATIONS, NON_UNION_KEYWORDS, FRESHNESS_HOURS, EXCLUDE_KEYWORDS
 from models import CastingListing
 
 
 class KeywordFilter:
-    """V1 filter: keyword matching on location, union status, freshness, and deadline."""
+    """V1 filter: keyword matching on location, union status, freshness, deadline, and profile."""
 
     def filter(self, listings: list[CastingListing]) -> list[CastingListing]:
         return [l for l in listings if self._passes(l)]
@@ -19,6 +19,7 @@ class KeywordFilter:
             and self._union_ok(listing)
             and self._fresh_enough(listing)
             and self._not_expired(listing)
+            and self._profile_ok(listing)
         )
 
     def _location_ok(self, listing: CastingListing) -> bool:
@@ -39,3 +40,7 @@ class KeywordFilter:
         if listing.deadline is None:
             return True
         return listing.deadline >= date.today()
+
+    def _profile_ok(self, listing: CastingListing) -> bool:
+        text = f"{listing.title} {listing.description}".lower()
+        return not any(kw in text for kw in EXCLUDE_KEYWORDS)

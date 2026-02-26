@@ -100,6 +100,38 @@ class TestDeadlineFilter:
         assert len(f.filter(listings)) == 0
 
 
+class TestProfileFilter:
+    def test_passes_generic_listing(self):
+        f = KeywordFilter()
+        listings = [_make_listing(title="Lead Role in Feature Film")]
+        assert len(f.filter(listings)) == 1
+
+    def test_rejects_female_listing(self):
+        f = KeywordFilter()
+        listings = [_make_listing(title="Seeking Female Models for Photoshoot")]
+        assert len(f.filter(listings)) == 0
+
+    def test_rejects_research_study(self):
+        f = KeywordFilter()
+        listings = [_make_listing(title="Paid Research Study - Beards Wanted")]
+        assert len(f.filter(listings)) == 0
+
+    def test_rejects_child_actor(self):
+        f = KeywordFilter()
+        listings = [_make_listing(title="PAID Child Actor Casting")]
+        assert len(f.filter(listings)) == 0
+
+    def test_rejects_focus_group(self):
+        f = KeywordFilter()
+        listings = [_make_listing(title="PAID FOCUS GROUP $100")]
+        assert len(f.filter(listings)) == 0
+
+    def test_passes_male_acting_role(self):
+        f = KeywordFilter()
+        listings = [_make_listing(title="Male Actor Needed for Comedy Short")]
+        assert len(f.filter(listings)) == 1
+
+
 class TestCombinedFilters:
     def test_multiple_listings_mixed(self):
         f = KeywordFilter()
